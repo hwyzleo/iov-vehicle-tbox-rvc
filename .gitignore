@@ -1,4 +1,4 @@
-# Prerequisites
+CMakeLists.txt# Prerequisites
 *.d
 
 # Compiled Object files
@@ -30,3 +30,6 @@
 *.exe
 *.out
 *.app
+
+cmake-build-debug/
+.idea/
