@@ -9,6 +9,7 @@
 
 #include <thread>
 
+#include "tbox_mqtt_handler.h"
 #include "../third_party/include/mosquitto/mosquitto.h"
 #include "../third_party/include/mosquitto/mosquittopp.h"
 #include "constants.h"
@@ -74,10 +75,11 @@ public:
      * 订阅
      * @param mid 消息ID
      * @param topic 主题
+     * @param handler 处理者
      * @param qos 消息质量
      * @return 是否订阅成功
      */
-    bool Subscribe(int &mid, const std::string &topic, int qos = 1);
+    bool Subscribe(int &mid, const std::string &topic, std::unique_ptr<TboxMqttHandler> &&handler, int qos = 1);
 
     void on_connect(int rc) override;
 
@@ -141,4 +143,6 @@ private:
     std::mutex mtx_loop_;
     // 轮询条件
     std::condition_variable cv_loop_;
+    // 主题处理器
+    std::unordered_map<std::string, std::unique_ptr<TboxMqttHandler>> topic_handler_;
 };

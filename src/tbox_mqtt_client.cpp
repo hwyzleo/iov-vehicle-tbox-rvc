@@ -3,8 +3,9 @@
 //
 #include <iostream>
 
-#include "../include/tbox_mqtt_client.h"
-#include "../include/tbox_mqtt_config.h"
+#include "tbox_mqtt_client.h"
+#include "tbox_mqtt_config.h"
+#include "find_vehicle.h"
 
 TboxMqttClient::TboxMqttClient() : mosqpp::mosquittopp() {}
 
@@ -56,7 +57,7 @@ bool TboxMqttClient::Publish(int &mid, const std::string &topic, const void *pay
     return false;
 }
 
-bool TboxMqttClient::Subscribe(int &mid, const std::string &topic, int qos) {
+bool TboxMqttClient::Subscribe(int &mid, const std::string &topic, std::unique_ptr<TboxMqttHandler> &&handler, int qos) {
     if (!is_connected_) {
         return false;
     }
@@ -69,6 +70,7 @@ bool TboxMqttClient::Subscribe(int &mid, const std::string &topic, int qos) {
         std::cout << "订阅主题[" << topic << "]失败" << std::endl;
         return false;
     }
+    topic_handler_[topic] = std::move(handler);
     cv_loop_.notify_all();
     return true;
 }
@@ -78,11 +80,9 @@ void TboxMqttClient::on_connect(int rc) {
     is_connected_ = (rc == MOSQ_ERR_SUCCESS);
     if (is_connected_) {
         std::cout << "TBOX MQTT客户端连接成功" << std::endl;
-        MqttConfig config = TboxMqttConfig::GetInstance().get_mqtt_config();
-        for (const auto &topic: config.subscribe_topics) {
-            int mid = 0;
-            Subscribe(mid, topic, 1);
-        }
+        int mid = 0;
+        std::unique_ptr<TboxMqttHandler> find_vehicle = std::make_unique<FindVehicle>();
+        Subscribe(mid, "FIND_VEHICLE", std::move(find_vehicle), 1);
         is_subscribed_ = true;
     }
 }
@@ -99,6 +99,7 @@ void TboxMqttClient::on_publish(int rc) {
 void TboxMqttClient::on_message(const struct mosquitto_message *message) {
     std::cout << "收到消息主题[" << message->topic << "]" << std::endl;
     std::cout << "内容: " << std::string(static_cast<char *>(message->payload), message->payloadlen) << std::endl;
+    topic_handler_[message->topic]->Handle(message->payload, message->payloadlen);
 }
 
 void TboxMqttClient::on_subscribe(int mid, int qos_count, const int *granted_qos) {

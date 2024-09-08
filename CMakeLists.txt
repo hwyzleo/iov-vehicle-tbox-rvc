@@ -4,7 +4,7 @@ project(RvcApp)
 
 # 设置C++标准
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-add_definitions("-std=c++11 -Wall -lpthread -g")
+add_definitions("-std=c++17 -Wall -lpthread -g")
 
 # 添加头文件目录
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -20,4 +20,7 @@ add_executable(RvcApp
     src/main.cpp
     src/tbox_mqtt_client.cpp
     src/tbox_mqtt_config.cpp
+    src/tbox_mqtt_handler.cpp
+    src/remote_control.cpp
+    src/find_vehicle.cpp
 )
