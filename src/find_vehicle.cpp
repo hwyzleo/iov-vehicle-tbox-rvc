@@ -3,6 +3,8 @@
 //
 #include <iostream>
 
+#include "../third_party/include/spdlog/spdlog.h"
+
 #include "find_vehicle.h"
 
 /**
@@ -25,5 +27,5 @@ void FindVehicle::OnError() {
 }
 
 void FindVehicle::Handle(void *payload, int payload_len) {
-    std::cout << "处理寻车指令: " << std::string(static_cast<char *>(payload), payload_len) << std::endl;
+    spdlog::debug("处理寻车指令[{}]", std::string(static_cast<char *>(payload), payload_len));
 }
