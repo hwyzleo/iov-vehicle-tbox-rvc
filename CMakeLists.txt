@@ -1,21 +1,32 @@
 cmake_minimum_required(VERSION 3.10)
-
 project(RvcApp)
 
 # 设置C++标准
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-add_definitions("-std=c++17 -Wall -lpthread -g")
+add_definitions("-Wall -lpthread -g")
 
-# 添加头文件目录
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/third_party/include)
+# 根据不同的环境设置不同的库文件目录
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+    if(APPLE)
+        set(LIB_DIR ${PROJECT_SOURCE_DIR}/third_party/lib/arm64-apple-darwin)
+    elseif(UNIX AND NOT APPLE)
+        set(LIB_DIR ${PROJECT_SOURCE_DIR}/third_party/lib/aarch64-linux-gnu)
+    endif()
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    if(APPLE)
+        set(LIB_DIR ${PROJECT_SOURCE_DIR}/third_party/lib/x86_64-apple-darwin)
+    elseif(UNIX AND NOT APPLE)
+        set(LIB_DIR ${PROJECT_SOURCE_DIR}/third_party/lib/x86_64-linux-gnu)
+    endif()
+endif()
 
 # 添加库文件目录
-link_directories(${PROJECT_SOURCE_DIR}/third_party/lib/arm64-apple-darwin/mosquitto)
-link_directories(${PROJECT_SOURCE_DIR}/third_party/lib/arm64-apple-darwin/spdlog)
+link_directories(${LIB_DIR}/mosquitto)
 link_libraries(mosquitto)
 link_libraries(mosquittopp)
-link_libraries(spdlog)
 
 # 添加可执行文件
 add_executable(RvcApp
@@ -26,3 +37,7 @@ add_executable(RvcApp
     src/remote_control.cpp
     src/find_vehicle.cpp
 )
+
+# 添加头文件目录
+target_include_directories(RvcApp PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(RvcApp PRIVATE ${PROJECT_SOURCE_DIR}/third_party/include)
