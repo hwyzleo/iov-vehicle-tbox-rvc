@@ -11,6 +11,13 @@
 
 class FindVehicle : public RemoteControl {
 public:
+
+    /**
+     * 获取单例
+     * @return 单例
+     */
+    static FindVehicle &GetInstance();
+
     /**
      * 控制指令
      * @param payload 数据
@@ -41,4 +48,8 @@ public:
     void Handle(void *payload, int payload_len) override;
 
     virtual ~FindVehicle() = default;
+private:
+
+    // 指令ID
+    std::string cmd_id_;
 };

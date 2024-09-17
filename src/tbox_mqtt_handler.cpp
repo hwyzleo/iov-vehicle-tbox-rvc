@@ -3,3 +3,7 @@
 //
 
 #include "tbox_mqtt_handler.h"
+
+void TboxMqttHandler::Handle(void *payload, int payload_len) {
+
+}

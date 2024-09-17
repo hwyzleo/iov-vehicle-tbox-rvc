@@ -49,8 +49,9 @@ bool TboxMqttClient::Publish(int &mid, const std::string &topic, const void *pay
     if (!is_connected_) {
         return false;
     }
-    spdlog::debug("转发TSP消息[{}]至主题[{}]", std::string(static_cast<const char *>(payload), payload_len), topic);
     int rc = mosquittopp::publish(&mid, topic.c_str(), payload_len, payload, qos, false);
+    spdlog::debug("发送远控APP消息[{}]至主题[{}][{}]", std::string(static_cast<const char *>(payload), payload_len),
+                  topic, rc);
     if (rc == MOSQ_ERR_SUCCESS) {
         cv_loop_.notify_all();
         return true;
@@ -84,7 +85,7 @@ void TboxMqttClient::on_connect(int rc) {
         spdlog::info("TBOX MQTT客户端连接成功");
         int mid = 0;
         std::unique_ptr<TboxMqttHandler> find_vehicle = std::make_unique<FindVehicle>();
-        Subscribe(mid, "FIND_VEHICLE", std::move(find_vehicle), 1);
+        Subscribe(mid, "APP/FIND_VEHICLE", std::move(find_vehicle), 1);
         is_subscribed_ = true;
     }
 }
@@ -95,7 +96,7 @@ void TboxMqttClient::on_disconnect(int rc) {
 }
 
 void TboxMqttClient::on_publish(int rc) {
-
+    spdlog::debug("发送消息[{}]成功", rc);
 }
 
 void TboxMqttClient::on_message(const struct mosquitto_message *message) {
