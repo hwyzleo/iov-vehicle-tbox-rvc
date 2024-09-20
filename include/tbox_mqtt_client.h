@@ -71,16 +71,6 @@ public:
      */
     bool Publish(int &mid, const std::string &topic, const void *payload = nullptr, int payload_len = 0, int qos = 1);
 
-    /**
-     * 订阅
-     * @param mid 消息ID
-     * @param topic 主题
-     * @param handler 处理者
-     * @param qos 消息质量
-     * @return 是否订阅成功
-     */
-    bool Subscribe(int &mid, const std::string &topic, std::unique_ptr<TboxMqttHandler> &&handler, int qos = 1);
-
     void on_connect(int rc) override;
 
     void on_disconnect(int rc) override;
@@ -119,6 +109,16 @@ private:
     bool Connect();
 
     /**
+     * 订阅
+     * @param mid 消息ID
+     * @param topic 主题
+     * @param handler 处理者
+     * @param qos 消息质量
+     * @return 是否订阅成功
+     */
+    bool Subscribe(int &mid, const std::string &topic, TboxMqttHandler &handler, int qos = 1);
+
+    /**
      * 获取设备信息
      * @param sn 设备序列号
      * @param vin 车架号
@@ -144,5 +144,5 @@ private:
     // 轮询条件
     std::condition_variable cv_loop_;
     // 主题处理器
-    std::unordered_map<std::string, std::unique_ptr<TboxMqttHandler>> topic_handler_;
+    std::unordered_map<std::string, TboxMqttHandler*> topic_handler_;
 };

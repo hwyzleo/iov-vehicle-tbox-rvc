@@ -2,12 +2,14 @@
 // Created by 叶荣杰 on 2024/9/8.
 //
 #include <iostream>
+#include <string>
 
 #include "../third_party/include/spdlog/spdlog.h"
 
 #include "tbox_mqtt_client.h"
 #include "tbox_mqtt_config.h"
 #include "find_vehicle.h"
+#include "base64.h"
 
 TboxMqttClient::TboxMqttClient() : mosqpp::mosquittopp() {}
 
@@ -49,33 +51,16 @@ bool TboxMqttClient::Publish(int &mid, const std::string &topic, const void *pay
     if (!is_connected_) {
         return false;
     }
-    int rc = mosquittopp::publish(&mid, topic.c_str(), payload_len, payload, qos, false);
-    spdlog::debug("发送远控APP消息[{}]至主题[{}][{}]", std::string(static_cast<const char *>(payload), payload_len),
-                  topic, rc);
+    std::string base64_payload = base64_encode(std::string(static_cast<const char *>(payload), payload_len));
+    int rc = mosquittopp::publish(&mid, topic.c_str(), static_cast<int>(base64_payload.length()),
+                                  base64_payload.c_str(), qos, false);
+    spdlog::debug("发送[{}]远控APP消息[{}]至主题[{}]", mid,
+                  std::string(static_cast<const char *>(payload), payload_len), topic);
     if (rc == MOSQ_ERR_SUCCESS) {
         cv_loop_.notify_all();
         return true;
     }
     return false;
-}
-
-bool TboxMqttClient::Subscribe(int &mid, const std::string &topic, std::unique_ptr<TboxMqttHandler> &&handler,
-                               int qos) {
-    if (!is_connected_) {
-        return false;
-    }
-    if (topic.empty()) {
-        return false;
-    }
-    int rc = this->subscribe(&mid, topic.c_str(), qos);
-    spdlog::info("订阅主题[{}][{}]", mid, topic);
-    if (rc != MOSQ_ERR_SUCCESS) {
-        spdlog::warn("订阅主题[{}]失败[{}]", topic, rc);
-        return false;
-    }
-    topic_handler_[topic] = std::move(handler);
-    cv_loop_.notify_all();
-    return true;
 }
 
 void TboxMqttClient::on_connect(int rc) {
@@ -84,8 +69,9 @@ void TboxMqttClient::on_connect(int rc) {
     if (is_connected_) {
         spdlog::info("TBOX MQTT客户端连接成功");
         int mid = 0;
-        std::unique_ptr<TboxMqttHandler> find_vehicle = std::make_unique<FindVehicle>();
-        Subscribe(mid, "APP/FIND_VEHICLE", std::move(find_vehicle), 1);
+        Subscribe(mid, "APP/FIND_VEHICLE", FindVehicle::GetInstance(), 1);
+        // 特殊订阅，先满足测试场景
+        Subscribe(mid, "TSP/FIND_VEHICLE", FindVehicle::GetInstance(), 1);
         is_subscribed_ = true;
     }
 }
@@ -96,17 +82,18 @@ void TboxMqttClient::on_disconnect(int rc) {
 }
 
 void TboxMqttClient::on_publish(int rc) {
-    spdlog::debug("发送消息[{}]成功", rc);
+    spdlog::debug("发送[{}]远控APP消息成功", rc);
 }
 
 void TboxMqttClient::on_message(const struct mosquitto_message *message) {
-    spdlog::debug("收到消息主题[{}]内容[{}]", message->topic,
-                  std::string(static_cast<char *>(message->payload), message->payloadlen));
-    topic_handler_[message->topic]->Handle(message->payload, message->payloadlen);
+    spdlog::info("收到消息主题[{}]内容[{}]", message->topic,
+                 std::string(static_cast<char *>(message->payload), message->payloadlen));
+    std::string payload = base64_decode(std::string(static_cast<char *>(message->payload), message->payloadlen));
+    topic_handler_[message->topic]->Handle(payload.c_str(), static_cast<int>(payload.length()));
 }
 
 void TboxMqttClient::on_subscribe(int mid, int qos_count, const int *granted_qos) {
-    spdlog::info("订阅主题[{}]成功", mid);
+    spdlog::info("订阅[{}]主题成功", mid);
 }
 
 void TboxMqttClient::on_unsubscribe(int mid) {
@@ -188,6 +175,24 @@ bool TboxMqttClient::Connect() {
         spdlog::warn("连接TBOX MQTT失败[{}]", rc);
         return false;
     }
+    return true;
+}
+
+bool TboxMqttClient::Subscribe(int &mid, const std::string &topic, TboxMqttHandler &handler, int qos) {
+    if (!is_connected_) {
+        return false;
+    }
+    if (topic.empty()) {
+        return false;
+    }
+    int rc = this->subscribe(&mid, topic.c_str(), qos);
+    spdlog::info("订阅[{}]主题[{}]QOS[{}]", mid, topic, qos);
+    if (rc != MOSQ_ERR_SUCCESS) {
+        spdlog::warn("订阅主题[{}]失败[{}]", topic, rc);
+        return false;
+    }
+    topic_handler_[topic] = &handler;
+    cv_loop_.notify_all();
     return true;
 }
 

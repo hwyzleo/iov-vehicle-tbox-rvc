@@ -4,6 +4,6 @@
 
 #include "tbox_mqtt_handler.h"
 
-void TboxMqttHandler::Handle(void *payload, int payload_len) {
+void TboxMqttHandler::Handle(const void *payload, int payload_len) {
 
 }

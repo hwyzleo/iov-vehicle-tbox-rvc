@@ -11,7 +11,7 @@ public:
      * @param payload 数据
      * @param payload_len 数据长度
      */
-    virtual void Handle(void *payload, int payload_len) = 0;
+    virtual void Handle(const void *payload, int payload_len) = 0;
 
     virtual ~TboxMqttHandler() = default;
 };

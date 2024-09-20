@@ -11,12 +11,27 @@
 
 class FindVehicle : public RemoteControl {
 public:
+    /**
+     * 析构虚函数
+     */
+    ~FindVehicle() override;
 
     /**
      * 获取单例
      * @return 单例
      */
     static FindVehicle &GetInstance();
+
+    /**
+     * 防止对象被复制
+     */
+    FindVehicle(const FindVehicle &) = delete;
+
+    /**
+     * 防止对象被赋值
+     * @return
+     */
+    FindVehicle &operator=(const FindVehicle &) = delete;
 
     /**
      * 控制指令
@@ -45,9 +60,11 @@ public:
      * @param payload 数据
      * @param payload_len 数据长度
      */
-    void Handle(void *payload, int payload_len) override;
+    void Handle(const void *payload, int payload_len) override;
+    
+private:
+    FindVehicle();
 
-    virtual ~FindVehicle() = default;
 private:
 
     // 指令ID
