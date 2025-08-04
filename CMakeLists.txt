@@ -27,6 +27,8 @@ endif()
 link_directories(${LIB_DIR}/mosquitto)
 link_libraries(mosquitto)
 link_libraries(mosquittopp)
+link_directories(${LIB_DIR}/yaml-cpp)
+link_libraries(yaml-cpp)
 
 # 添加可执行文件
 add_executable(RvcApp
@@ -36,7 +38,7 @@ add_executable(RvcApp
     src/tbox_mqtt_handler.cpp
     src/remote_control.cpp
     src/find_vehicle.cpp
-)
+        include/common_function.h src/common_function.cpp)
 
 # 添加头文件目录
 target_include_directories(RvcApp PRIVATE ${PROJECT_SOURCE_DIR}/include)

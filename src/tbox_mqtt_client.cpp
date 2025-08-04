@@ -6,10 +6,10 @@
 
 #include "../third_party/include/spdlog/spdlog.h"
 
+#include "common_function.h"
 #include "tbox_mqtt_client.h"
 #include "tbox_mqtt_config.h"
 #include "find_vehicle.h"
-#include "base64.h"
 
 TboxMqttClient::TboxMqttClient() : mosqpp::mosquittopp() {}
 
@@ -51,7 +51,7 @@ bool TboxMqttClient::Publish(int &mid, const std::string &topic, const void *pay
     if (!is_connected_) {
         return false;
     }
-    std::string base64_payload = base64_encode(std::string(static_cast<const char *>(payload), payload_len));
+    std::string base64_payload = CommonFunction::base64_encode(std::string(static_cast<const char *>(payload), payload_len));
     int rc = mosquittopp::publish(&mid, topic.c_str(), static_cast<int>(base64_payload.length()),
                                   base64_payload.c_str(), qos, false);
     spdlog::debug("发送[{}]远控APP消息[{}]至主题[{}]", mid,
@@ -88,7 +88,7 @@ void TboxMqttClient::on_publish(int rc) {
 void TboxMqttClient::on_message(const struct mosquitto_message *message) {
     spdlog::info("收到消息主题[{}]内容[{}]", message->topic,
                  std::string(static_cast<char *>(message->payload), message->payloadlen));
-    std::string payload = base64_decode(std::string(static_cast<char *>(message->payload), message->payloadlen));
+    std::string payload = CommonFunction::base64_decode(std::string(static_cast<char *>(message->payload), message->payloadlen));
     topic_handler_[message->topic]->Handle(payload.c_str(), static_cast<int>(payload.length()));
 }
 
