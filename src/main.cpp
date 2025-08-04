@@ -3,6 +3,7 @@
 //
 #include <iostream>
 #include <thread>
+#include <signal.h>
 
 #include "../third_party/include/spdlog/spdlog.h"
 #include "../third_party/include/spdlog/sinks/stdout_color_sinks.h"
@@ -21,13 +22,52 @@ int main() {
     YAML::Node config = YAML::LoadFile(file_path);
     // 初始化日志
     init_logger(config);
-    spdlog::info("主函数运行");
+
+    // 注册信号处理
+    struct sigaction act = {0};
+    act.sa_flags = SA_SIGINFO;
+    act.sa_sigaction = sig_handler;
+    if (sigaction(SIGTERM, &act, NULL) == -1) {
+        perror("sigaction SIGTERM");
+        spdlog::error("注册SIGTERM处理器失败");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGSEGV, &act, NULL) == -1) {
+        perror("sigaction SIGSEGV");
+        spdlog::error("注册SIGSEGV处理器失败");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGINT, &act, NULL) == -1) {
+        perror("sigaction SIGINT");
+        spdlog::error("注册SIGINT处理器失败");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGILL, &act, NULL) == -1) {
+        perror("sigaction SIGILL");
+        spdlog::error("注册SIGILL处理器失败");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGHUP, &act, NULL) == -1) {
+        perror("sigaction SIGHUP");
+        spdlog::error("注册SIGHUP处理器失败");
+        exit(EXIT_FAILURE);
+    }
+
     system("python3 /home/jetson/hwyz/rvc.py");
     // 启动TBOX MQTT客户端
     TboxMqttClient::get_instance().start();
-    while (true) {
+
+    spdlog::info("主函数运行");
+    while (!shutdown_requested) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    spdlog::info("收到关闭信号");
+    TboxMqttClient::get_instance().stop();
+    return -1;
+}
+
+static void sig_handler(int sig, siginfo_t *info, void *context) {
+    shutdown_requested = 1;
 }
 
 void init_logger(const YAML::Node &config) {
