@@ -1,5 +1,5 @@
 //
-// Created by 叶荣杰 on 2024/9/8.
+// Created by hwyz_leo on 2024/9/8.
 //
 
 #ifndef RVCAPP_REMOTE_CONTROL_H
@@ -21,22 +21,22 @@ public:
      * @param payload 数据
      * @param payload_len 数据长度
      */
-    virtual void ControlCmd(const void *payload, int payload_len) = 0;
+    virtual void control_cmd(const void *payload, int payload_len) = 0;
 
     /**
      * 开始时执行
      */
-    virtual void OnStart() = 0;
+    virtual void on_start() = 0;
 
     /**
      * 结束时执行
      */
-    virtual void OnFinish() = 0;
+    virtual void on_finish() = 0;
 
     /**
      * 错误时执行
      */
-    virtual void OnError() = 0;
+    virtual void on_error() = 0;
 
     virtual ~RemoteControl() = default;
 };

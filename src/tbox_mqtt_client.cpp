@@ -1,5 +1,5 @@
 //
-// Created by 叶荣杰 on 2024/9/8.
+// Created by hwyz_leo on 2024/9/8.
 //
 #include <iostream>
 #include <string>
@@ -17,21 +17,21 @@ TboxMqttClient::~TboxMqttClient() {
     mosqpp::lib_cleanup();
 }
 
-TboxMqttClient &TboxMqttClient::GetInstance() {
+TboxMqttClient &TboxMqttClient::get_instance() {
     static TboxMqttClient instance;
     return instance;
 }
 
-bool TboxMqttClient::Start() {
+bool TboxMqttClient::start() {
     if (!is_started_) {
         spdlog::info("启动TBOX MQTT客户端");
-        this->ConnectManage();
+        this->connect_manage();
         is_started_ = true;
     }
     return is_started_;
 }
 
-void TboxMqttClient::Stop() {
+void TboxMqttClient::stop() {
     if (!is_started_) {
         return;
     }
@@ -40,11 +40,11 @@ void TboxMqttClient::Stop() {
     is_started_ = false;
 }
 
-bool TboxMqttClient::IsConnected() const {
+bool TboxMqttClient::is_connected() const {
     return is_connected_;
 }
 
-bool TboxMqttClient::Publish(int &mid, const std::string &topic, const void *payload, int payload_len, int qos) {
+bool TboxMqttClient::publish(int &mid, const std::string &topic, const void *payload, int payload_len, int qos) {
     if (nullptr == payload) {
         return false;
     }
@@ -69,9 +69,9 @@ void TboxMqttClient::on_connect(int rc) {
     if (is_connected_) {
         spdlog::info("TBOX MQTT客户端连接成功");
         int mid = 0;
-        Subscribe(mid, "APP/FIND_VEHICLE", FindVehicle::GetInstance(), 1);
+        subscribe_topic(mid, "APP/FIND_VEHICLE", FindVehicle::get_instance(), 1);
         // 特殊订阅，先满足测试场景
-        Subscribe(mid, "TSP/FIND_VEHICLE", FindVehicle::GetInstance(), 1);
+        subscribe_topic(mid, "TSP/FIND_VEHICLE", FindVehicle::get_instance(), 1);
         is_subscribed_ = true;
     }
 }
@@ -89,7 +89,7 @@ void TboxMqttClient::on_message(const struct mosquitto_message *message) {
     spdlog::info("收到消息主题[{}]内容[{}]", message->topic,
                  std::string(static_cast<char *>(message->payload), message->payloadlen));
     std::string payload = CommonFunction::base64_decode(std::string(static_cast<char *>(message->payload), message->payloadlen));
-    topic_handler_[message->topic]->Handle(payload.c_str(), static_cast<int>(payload.length()));
+    topic_handler_[message->topic]->handle(payload.c_str(), static_cast<int>(payload.length()));
 }
 
 void TboxMqttClient::on_subscribe(int mid, int qos_count, const int *granted_qos) {
@@ -108,7 +108,7 @@ void TboxMqttClient::on_error() {
 
 }
 
-bool TboxMqttClient::Init() {
+bool TboxMqttClient::init() {
     if (!is_inited_) {
         spdlog::info("初始化TBOX MQTT客户端");
         int rc = mosqpp::lib_init();
@@ -120,11 +120,11 @@ bool TboxMqttClient::Init() {
     return is_inited_;
 }
 
-void TboxMqttClient::ConnectManage() {
+void TboxMqttClient::connect_manage() {
     std::thread th([&]() {
         bool is_first_connect = true;
         while (is_started_) {
-            if (!Init()) {
+            if (!init()) {
                 spdlog::warn("TBOX MQTT客户端初始化失败");
                 std::this_thread::sleep_for(std::chrono::seconds(kMqttReconnectIntervalSecond));
                 continue;
@@ -135,7 +135,7 @@ void TboxMqttClient::ConnectManage() {
                 } else {
                     std::this_thread::sleep_for(std::chrono::seconds(kMqttReconnectIntervalSecond));
                 }
-                if (Connect()) {
+                if (connect()) {
                     is_connecting_ = true;
                 }
             } else {
@@ -149,16 +149,16 @@ void TboxMqttClient::ConnectManage() {
     connector.swap(th);
 }
 
-bool TboxMqttClient::Connect() {
+bool TboxMqttClient::connect() {
     std::string sn;
     std::string vin;
-    if (!GetDeviceInfo(sn, vin)) {
+    if (!get_device_info(sn, vin)) {
         return false;
     }
-    if (!TboxMqttConfig::GetInstance().SetInfo(vin, sn)) {
+    if (!TboxMqttConfig::get_instance().set_info(vin, sn)) {
         return false;
     }
-    MqttConfig config = TboxMqttConfig::GetInstance().get_mqtt_config();
+    MqttConfig config = TboxMqttConfig::get_instance().get_mqtt_config();
     spdlog::info("重置客户端ID");
     int rc = this->reinitialise(config.client_id.c_str(), true);
     if (rc != MOSQ_ERR_SUCCESS) {
@@ -178,7 +178,7 @@ bool TboxMqttClient::Connect() {
     return true;
 }
 
-bool TboxMqttClient::Subscribe(int &mid, const std::string &topic, TboxMqttHandler &handler, int qos) {
+bool TboxMqttClient::subscribe_topic(int &mid, const std::string &topic, TboxMqttHandler &handler, int qos) {
     if (!is_connected_) {
         return false;
     }
@@ -196,7 +196,7 @@ bool TboxMqttClient::Subscribe(int &mid, const std::string &topic, TboxMqttHandl
     return true;
 }
 
-bool TboxMqttClient::GetDeviceInfo(std::string &sn, std::string &vin) const {
+bool TboxMqttClient::get_device_info(std::string &sn, std::string &vin) const {
     sn.clear();
     vin.clear();
     // 当前先写死

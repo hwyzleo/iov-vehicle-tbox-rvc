@@ -1,5 +1,5 @@
 //
-// Created by 叶荣杰 on 2024/9/8.
+// Created by hwyz_leo on 2024/9/8.
 //
 #include <iostream>
 #include <cstdlib>
@@ -21,12 +21,12 @@ FindVehicle::~FindVehicle() {
 
 }
 
-FindVehicle &FindVehicle::GetInstance() {
+FindVehicle &FindVehicle::get_instance() {
     static FindVehicle instance;
     return instance;
 }
 
-void FindVehicle::ControlCmd(const void *payload, int payload_len) {
+void FindVehicle::control_cmd(const void *payload, int payload_len) {
     const char *char_payload = static_cast<const char *>(payload);
     spdlog::info("收到寻车指令[{}]", std::string(char_payload, payload_len));
     std::string json_string(char_payload, payload_len);
@@ -43,16 +43,16 @@ void FindVehicle::ControlCmd(const void *payload, int payload_len) {
         if (json_object["state"] == 2) {
             std::this_thread::sleep_for(std::chrono::seconds(10));
             system("python3 /home/jetson/hwyz/find_vehicle_end.py");
-            OnFinish();
+            on_finish();
         }
     } else {
         std::this_thread::sleep_for(std::chrono::seconds(1));
         system("python3 /home/jetson/hwyz/find_vehicle.py");
-        OnStart();
+        on_start();
     }
 }
 
-void FindVehicle::OnStart() {
+void FindVehicle::on_start() {
     int mid = 0;
     std::map<std::string, json> params;
     params["type"] = "FIND_VEHICLE";
@@ -61,7 +61,7 @@ void FindVehicle::OnStart() {
     params["ts"] = static_cast<long>(std::time(nullptr));
     json j = params;
     std::string params_json = j.dump();
-    TboxMqttClient::GetInstance().Publish(
+    TboxMqttClient::get_instance().publish(
             mid,
             "TSP/FIND_VEHICLE",
             params_json.c_str(),
@@ -71,7 +71,7 @@ void FindVehicle::OnStart() {
     spdlog::debug("寻车指令[{}]开始执行", cmd_id_);
 }
 
-void FindVehicle::OnFinish() {
+void FindVehicle::on_finish() {
     int mid = 0;
     std::map<std::string, json> params;
     params["type"] = "FIND_VEHICLE";
@@ -80,7 +80,7 @@ void FindVehicle::OnFinish() {
     params["ts"] = static_cast<long>(std::time(nullptr));
     json j = params;
     std::string params_json = j.dump();
-    TboxMqttClient::GetInstance().Publish(
+    TboxMqttClient::get_instance().publish(
             mid,
             "TSP/FIND_VEHICLE",
             params_json.c_str(),
@@ -90,7 +90,7 @@ void FindVehicle::OnFinish() {
     spdlog::debug("寻车指令[{}]执行完成", cmd_id_);
 }
 
-void FindVehicle::OnError() {
+void FindVehicle::on_error() {
     int mid = 0;
     std::map<std::string, json> params;
     params["type"] = "FIND_VEHICLE";
@@ -99,7 +99,7 @@ void FindVehicle::OnError() {
     params["cmdId"] = cmd_id_;
     json j = params;
     std::string params_json = j.dump();
-    TboxMqttClient::GetInstance().Publish(
+    TboxMqttClient::get_instance().publish(
             mid,
             "TSP/FIND_VEHICLE",
             params_json.c_str(),
@@ -109,7 +109,7 @@ void FindVehicle::OnError() {
     spdlog::warn("寻车指令[{}]执行失败", cmd_id_);
 }
 
-void FindVehicle::Handle(const void *payload, int payload_len) {
+void FindVehicle::handle(const void *payload, int payload_len) {
     spdlog::debug("处理寻车指令[{}]", std::string(static_cast<const char *>(payload), payload_len));
-    FindVehicle::GetInstance().ControlCmd(payload, payload_len);
+    FindVehicle::get_instance().control_cmd(payload, payload_len);
 }

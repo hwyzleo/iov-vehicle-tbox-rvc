@@ -1,5 +1,5 @@
 //
-// Created by 叶荣杰 on 2024/9/8.
+// Created by hwyz_leo on 2024/9/8.
 //
 
 #ifndef RVCAPP_TBOX_MQTT_CONFIG_H
@@ -18,7 +18,7 @@ public:
      * 获取单例
      * @return 单例
      */
-    static TboxMqttConfig &GetInstance();
+    static TboxMqttConfig &get_instance();
 
     /**
      * 防止对象被复制
@@ -38,7 +38,7 @@ public:
      * @param client_id 客户端ID
      * @return 是否设置成功
      */
-    bool SetInfo(const std::string &username, const std::string &client_id);
+    bool set_info(const std::string &username, const std::string &client_id);
 
     /**
      * 获取MQTT配置
@@ -53,7 +53,7 @@ private:
      * 生成密码
      * @return 是否生成成功
      */
-    bool GeneratePassword();
+    bool generate_password();
 
 private:
     // MQTT配置

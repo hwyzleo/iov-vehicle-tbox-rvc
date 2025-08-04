@@ -1,5 +1,5 @@
 //
-// Created by 叶荣杰 on 2024/9/8.
+// Created by hwyz_leo on 2024/9/8.
 //
 #include <iostream>
 #include <thread>
@@ -24,7 +24,7 @@ int main() {
     spdlog::info("主函数运行");
     system("python3 /home/jetson/hwyz/rvc.py");
     // 启动TBOX MQTT客户端
-    TboxMqttClient::GetInstance().Start();
+    TboxMqttClient::get_instance().start();
     while (true) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }

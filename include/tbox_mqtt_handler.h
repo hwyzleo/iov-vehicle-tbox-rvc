@@ -1,5 +1,5 @@
 //
-// Created by 叶荣杰 on 2024/9/8.
+// Created by hwyz_leo on 2024/9/8.
 //
 
 #ifndef RVCAPP_TBOX_MQTT_HANDLER_H
@@ -11,7 +11,7 @@ public:
      * @param payload 数据
      * @param payload_len 数据长度
      */
-    virtual void Handle(const void *payload, int payload_len) = 0;
+    virtual void handle(const void *payload, int payload_len) = 0;
 
     virtual ~TboxMqttHandler() = default;
 };

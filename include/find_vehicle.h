@@ -1,5 +1,5 @@
 //
-// Created by 叶荣杰 on 2024/9/8.
+// Created by hwyz_leo on 2024/9/8.
 //
 
 #ifndef RVCAPP_FIND_VEHICLE_H
@@ -20,7 +20,7 @@ public:
      * 获取单例
      * @return 单例
      */
-    static FindVehicle &GetInstance();
+    static FindVehicle &get_instance();
 
     /**
      * 防止对象被复制
@@ -38,29 +38,29 @@ public:
      * @param payload 数据
      * @param payload_len 数据长度
      */
-    void ControlCmd(const void *payload, int payload_len) override;
+    void control_cmd(const void *payload, int payload_len) override;
 
     /**
      * 开始时执行
      */
-    void OnStart() override;
+    void on_start() override;
 
     /**
      * 结束时执行
      */
-    void OnFinish() override;
+    void on_finish() override;
 
     /**
      * 错误时执行
      */
-    void OnError() override;
+    void on_error() override;
 
     /**
      * 处理消息
      * @param payload 数据
      * @param payload_len 数据长度
      */
-    void Handle(const void *payload, int payload_len) override;
+    void handle(const void *payload, int payload_len) override;
     
 private:
     FindVehicle();
