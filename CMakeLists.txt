@@ -23,7 +23,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
     endif()
 endif()
 
-# 添加库文件目录
+# 添加内部库文件目录
 link_directories(${LIB_DIR}/mosquitto)
 link_libraries(mosquitto)
 link_libraries(mosquittopp)
@@ -38,7 +38,12 @@ add_executable(RvcApp
     src/tbox_mqtt_handler.cpp
     src/remote_control.cpp
     src/find_vehicle.cpp
-        include/common_function.h src/common_function.cpp)
+        )
+
+# 添加共享依赖库
+find_package(HWYZ REQUIRED)
+target_link_libraries(RvcApp PRIVATE ${HWYZ_LIBRARIES})
+target_include_directories(RvcApp PUBLIC ${HWYZ_INCLUDE_DIR})
 
 # 添加头文件目录
 target_include_directories(RvcApp PRIVATE ${PROJECT_SOURCE_DIR}/include)

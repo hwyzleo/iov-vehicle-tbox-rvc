@@ -4,9 +4,6 @@
 
 #ifndef RVCAPP_REMOTE_CONTROL_H
 #define RVCAPP_REMOTE_CONTROL_H
-
-#endif //RVCAPP_REMOTE_CONTROL_H
-
 #include <string>
 
 #include "tbox_mqtt_handler.h"
@@ -40,3 +37,5 @@ public:
 
     virtual ~RemoteControl() = default;
 };
+
+#endif //RVCAPP_REMOTE_CONTROL_H

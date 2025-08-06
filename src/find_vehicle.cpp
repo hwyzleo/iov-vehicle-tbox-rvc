@@ -6,8 +6,8 @@
 #include <map>
 #include <future>
 
-#include "../third_party/include/spdlog/spdlog.h"
-#include "../third_party/include/nlohmann/json.hpp"
+#include "spdlog/spdlog.h"
+#include "nlohmann/json.hpp"
 
 using json = nlohmann::json;
 

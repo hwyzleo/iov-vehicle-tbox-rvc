@@ -4,9 +4,6 @@
 
 #ifndef RVCAPP_FIND_VEHICLE_H
 #define RVCAPP_FIND_VEHICLE_H
-
-#endif //RVCAPP_FIND_VEHICLE_H
-
 #include "remote_control.h"
 
 class FindVehicle : public RemoteControl {
@@ -70,3 +67,5 @@ private:
     // 指令ID
     std::string cmd_id_;
 };
+
+#endif //RVCAPP_FIND_VEHICLE_H

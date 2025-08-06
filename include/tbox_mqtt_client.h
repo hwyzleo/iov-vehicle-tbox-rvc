@@ -4,14 +4,12 @@
 
 #ifndef RVCAPP_TBOX_MQTT_CLIENT_H
 #define RVCAPP_TBOX_MQTT_CLIENT_H
-
-#endif //RVCAPP_TBOX_MQTT_CLIENT_H
-
 #include <thread>
 
+#include "mosquitto/mosquitto.h"
+#include "mosquitto/mosquittopp.h"
+
 #include "tbox_mqtt_handler.h"
-#include "../third_party/include/mosquitto/mosquitto.h"
-#include "../third_party/include/mosquitto/mosquittopp.h"
 #include "constants.h"
 
 /**
@@ -146,3 +144,5 @@ private:
     // 主题处理器
     std::unordered_map<std::string, TboxMqttHandler*> topic_handler_;
 };
+
+#endif //RVCAPP_TBOX_MQTT_CLIENT_H

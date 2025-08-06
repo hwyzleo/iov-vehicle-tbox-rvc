@@ -5,7 +5,6 @@
 #ifndef RVCAPP_TBOX_MQTT_CONFIG_H
 #define RVCAPP_TBOX_MQTT_CONFIG_H
 #include "constants.h"
-#endif //RVCAPP_TBOX_MQTT_CONFIG_H
 
 class TboxMqttConfig {
 public:
@@ -67,3 +66,5 @@ private:
     // 服务器端口
     int server_port_ = 1883;
 };
+
+#endif //RVCAPP_TBOX_MQTT_CONFIG_H

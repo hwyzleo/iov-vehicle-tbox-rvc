@@ -34,3 +34,4 @@ CMakeLists.txt# Prerequisites
 
 cmake-build-debug/
 .idea/
+build/
