@@ -9,6 +9,9 @@
 class MainApplication : public hwyz::Application {
 protected:
     bool initialize() override {
+        if (!TboxMqttClient::get_instance().load_config(getConfig())) {
+            return false;
+        }
         return true;
     }
 

@@ -9,19 +9,19 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_definitions("-Wall -lpthread -g")
 
 # 根据不同的环境设置不同的库文件目录
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-    if(APPLE)
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+    if (APPLE)
         set(LIB_DIR ${PROJECT_SOURCE_DIR}/third_party/lib/arm64-apple-darwin)
-    elseif(UNIX AND NOT APPLE)
+    elseif (UNIX AND NOT APPLE)
         set(LIB_DIR ${PROJECT_SOURCE_DIR}/third_party/lib/aarch64-linux-gnu)
-    endif()
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-    if(APPLE)
+    endif ()
+elseif (CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    if (APPLE)
         set(LIB_DIR ${PROJECT_SOURCE_DIR}/third_party/lib/x86_64-apple-darwin)
-    elseif(UNIX AND NOT APPLE)
+    elseif (UNIX AND NOT APPLE)
         set(LIB_DIR ${PROJECT_SOURCE_DIR}/third_party/lib/x86_64-linux-gnu)
-    endif()
-endif()
+    endif ()
+endif ()
 
 # 添加内部库文件目录
 link_directories(${LIB_DIR}/mosquitto)
@@ -32,12 +32,11 @@ link_libraries(yaml-cpp)
 
 # 添加可执行文件
 add_executable(RvcApp
-    src/main.cpp
-    src/tbox_mqtt_client.cpp
-    src/tbox_mqtt_config.cpp
-    src/tbox_mqtt_handler.cpp
-    src/remote_control.cpp
-    src/find_vehicle.cpp
+        src/main.cpp
+        src/tbox_mqtt_client.cpp
+        src/tbox_mqtt_handler.cpp
+        src/remote_control.cpp
+        src/find_vehicle.cpp
         )
 
 # 添加共享依赖库

@@ -8,9 +8,9 @@
 
 #include "mosquitto/mosquitto.h"
 #include "mosquitto/mosquittopp.h"
+#include "yaml-cpp/yaml.h"
 
 #include "tbox_mqtt_handler.h"
-#include "constants.h"
 
 /**
  * TSP的MQTT客户端
@@ -40,6 +40,12 @@ public:
     TboxMqttClient &operator=(const TboxMqttClient &) = delete;
 
 public:
+    /**
+     * 加载配置
+     * @param config 配置信息
+     * @return 是否加载成功
+     */
+    bool load_config(const YAML::Node &config);
 
     /**
      * 启动
@@ -116,14 +122,6 @@ private:
      */
     bool subscribe_topic(int &mid, const std::string &topic, TboxMqttHandler &handler, int qos = 1);
 
-    /**
-     * 获取设备信息
-     * @param sn 设备序列号
-     * @param vin 车架号
-     * @return 是否获取成功
-     */
-    bool get_device_info(std::string &sn, std::string &vin) const;
-
 private:
     // 是否初始化
     std::atomic_bool is_inited_{false};
@@ -143,6 +141,28 @@ private:
     std::condition_variable cv_loop_;
     // 主题处理器
     std::unordered_map<std::string, TboxMqttHandler*> topic_handler_;
+    // 服务器地址
+    std::string server_host_ = "127.0.0.1";
+    // 服务器端口
+    std::uint16_t server_port_ = 1883;
+    // 保持连接时间
+    int keepalive_ = 60;
+    // 客户端ID
+    std::string client_id_;
+    // 用户名
+    std::string username_ = "RvcApp";
+    // 密码
+    std::string password_ = "RvcApp";
+    // 使用SSL
+    bool use_ssl_ = false;
+    // 订阅主题
+    std::set<std::string> subscribe_topics_ = {
+            "FIND_VEHICLE"
+    };
+    // 重连间隔时间
+    int reconnect_interval_second_ = 15;
+    // 轮询间隔时间
+    int loop_interval_milli_second_ = 100;
 };
 
 #endif //RVCAPP_TBOX_MQTT_CLIENT_H
