@@ -2,42 +2,42 @@
 // Created by hwyz_leo on 2024/9/8.
 //
 
-#ifndef RVCAPP_TBOX_MQTT_CLIENT_H
-#define RVCAPP_TBOX_MQTT_CLIENT_H
+#ifndef RVCAPP_MQTT_CLIENT_H
+#define RVCAPP_MQTT_CLIENT_H
 #include <thread>
 
 #include "mosquitto/mosquitto.h"
 #include "mosquitto/mosquittopp.h"
 #include "yaml-cpp/yaml.h"
 
-#include "tbox_mqtt_handler.h"
+#include "mqtt_handler.h"
 
 /**
- * TSP的MQTT客户端
+ * MQTT客户端
  */
-class TboxMqttClient : public mosqpp::mosquittopp {
+class MqttClient : public mosqpp::mosquittopp {
 public:
     /**
      * 析构虚函数
      */
-    ~TboxMqttClient() override;
+    ~MqttClient() override;
 
     /**
      * 获取单例
      * @return 单例
      */
-    static TboxMqttClient &get_instance();
+    static MqttClient &get_instance();
 
     /**
      * 防止对象被复制
      */
-    TboxMqttClient(const TboxMqttClient &) = delete;
+    MqttClient(const MqttClient &) = delete;
 
     /**
      * 防止对象被赋值
      * @return
      */
-    TboxMqttClient &operator=(const TboxMqttClient &) = delete;
+    MqttClient &operator=(const MqttClient &) = delete;
 
 public:
     /**
@@ -93,7 +93,7 @@ public:
 
 private:
 
-    TboxMqttClient();
+    MqttClient();
 
     /**
      * 初始化
@@ -120,7 +120,7 @@ private:
      * @param qos 消息质量
      * @return 是否订阅成功
      */
-    bool subscribe_topic(int &mid, const std::string &topic, TboxMqttHandler &handler, int qos = 1);
+    bool subscribe_topic(int &mid, const std::string &topic, MqttHandler &handler, int qos = 1);
 
 private:
     // 是否初始化
@@ -140,7 +140,7 @@ private:
     // 轮询条件
     std::condition_variable cv_loop_;
     // 主题处理器
-    std::unordered_map<std::string, TboxMqttHandler*> topic_handler_;
+    std::unordered_map<std::string, MqttHandler*> topic_handler_;
     // 服务器地址
     std::string server_host_ = "127.0.0.1";
     // 服务器端口
@@ -165,4 +165,4 @@ private:
     int loop_interval_milli_second_ = 100;
 };
 
-#endif //RVCAPP_TBOX_MQTT_CLIENT_H
+#endif //RVCAPP_MQTT_CLIENT_H

@@ -2,9 +2,9 @@
 // Created by hwyz_leo on 2024/9/8.
 //
 
-#ifndef RVCAPP_TBOX_MQTT_HANDLER_H
-#define RVCAPP_TBOX_MQTT_HANDLER_H
-class TboxMqttHandler {
+#ifndef RVCAPP_MQTT_HANDLER_H
+#define RVCAPP_MQTT_HANDLER_H
+class MqttHandler {
 public:
     /**
      * 处理消息
@@ -13,7 +13,7 @@ public:
      */
     virtual void handle(const void *payload, int payload_len) = 0;
 
-    virtual ~TboxMqttHandler() = default;
+    virtual ~MqttHandler() = default;
 };
-#endif //RVCAPP_TBOX_MQTT_HANDLER_H
+#endif //RVCAPP_MQTT_HANDLER_H
 

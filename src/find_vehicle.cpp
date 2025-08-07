@@ -12,7 +12,7 @@
 using json = nlohmann::json;
 
 #include "find_vehicle.h"
-#include "tbox_mqtt_client.h"
+#include "mqtt_client.h"
 
 FindVehicle::FindVehicle() {
 }
@@ -54,14 +54,14 @@ void FindVehicle::control_cmd(const void *payload, int payload_len) {
 
 void FindVehicle::on_start() {
     int mid = 0;
-    std::map<std::string, json> params;
+    std::map < std::string, json > params;
     params["type"] = "FIND_VEHICLE";
     params["state"] = 2;
     params["cmdId"] = cmd_id_;
     params["ts"] = static_cast<long>(std::time(nullptr));
     json j = params;
     std::string params_json = j.dump();
-    TboxMqttClient::get_instance().publish(
+    MqttClient::get_instance().publish(
             mid,
             "TSP/FIND_VEHICLE",
             params_json.c_str(),
@@ -73,14 +73,14 @@ void FindVehicle::on_start() {
 
 void FindVehicle::on_finish() {
     int mid = 0;
-    std::map<std::string, json> params;
+    std::map < std::string, json > params;
     params["type"] = "FIND_VEHICLE";
     params["state"] = 3;
     params["cmdId"] = cmd_id_;
     params["ts"] = static_cast<long>(std::time(nullptr));
     json j = params;
     std::string params_json = j.dump();
-    TboxMqttClient::get_instance().publish(
+    MqttClient::get_instance().publish(
             mid,
             "TSP/FIND_VEHICLE",
             params_json.c_str(),
@@ -92,14 +92,14 @@ void FindVehicle::on_finish() {
 
 void FindVehicle::on_error() {
     int mid = 0;
-    std::map<std::string, json> params;
+    std::map < std::string, json > params;
     params["type"] = "FIND_VEHICLE";
     params["state"] = 4;
     params["failure"] = 1;
     params["cmdId"] = cmd_id_;
     json j = params;
     std::string params_json = j.dump();
-    TboxMqttClient::get_instance().publish(
+    MqttClient::get_instance().publish(
             mid,
             "TSP/FIND_VEHICLE",
             params_json.c_str(),

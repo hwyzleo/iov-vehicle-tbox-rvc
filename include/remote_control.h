@@ -6,12 +6,12 @@
 #define RVCAPP_REMOTE_CONTROL_H
 #include <string>
 
-#include "tbox_mqtt_handler.h"
+#include "mqtt_handler.h"
 
 /**
  * 远程控制基类
  */
-class RemoteControl : public TboxMqttHandler {
+class RemoteControl : public MqttHandler {
 public:
     /**
      * 控制指令

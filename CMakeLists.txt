@@ -33,8 +33,8 @@ link_libraries(yaml-cpp)
 # 添加可执行文件
 add_executable(RvcApp
         src/main.cpp
-        src/tbox_mqtt_client.cpp
-        src/tbox_mqtt_handler.cpp
+        src/mqtt_client.cpp
+        src/mqtt_handler.cpp
         src/remote_control.cpp
         src/find_vehicle.cpp
         )
